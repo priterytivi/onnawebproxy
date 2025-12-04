@@ -14,7 +14,7 @@ app.get("/*", async (req, res) => {
     const targetUrl = req.originalUrl.substring(1);
 
     if (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://")) {
-      return res.status(400).send("URL không hợp lệ.");
+      return res.status(400).send("Đây là công cụ Web Proxy được lập ra bởi ONNA Network, để có thể truy cập website bằng công cụ này, hãy để link website như này "https://onnanetwork.xyz/https://ditmebonspamcommentsaodon.com");
     }
 
     const response = await fetch(targetUrl, {
