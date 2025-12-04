@@ -5,31 +5,33 @@ import cors from "cors";
 const app = express();
 app.use(cors());
 
-// Proxy tất cả đường dẫn
 app.get("/*", async (req, res) => {
   try {
-    // Lấy URL gốc từ path (bỏ dấu "/")
     const targetUrl = req.originalUrl.substring(1);
 
     if (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://")) {
-      return res.status(400).send("URL không hợp lệ. Ví dụ: /http://saygex69tv.com");
+      return res.status(400).send("URL không hợp lệ. Ví dụ: /http://domain.com/file.m3u8");
     }
 
     const response = await fetch(targetUrl);
 
-    // Lấy content type để trả về đúng định dạng
-    const contentType = response.headers.get("content-type");
-    if (contentType) res.set("Content-Type", contentType);
+    // Lấy Content-Type gốc
+    let contentType = response.headers.get("content-type");
 
-    // Lấy nội dung gốc
-    const buffer = await response.buffer();
-    res.send(buffer);
+    // Nếu là m3u8 mà server không trả đúng => ép MIME-Type đúng chuẩn để player chạy được
+    if (targetUrl.endsWith(".m3u8")) {
+      contentType = "application/vnd.apple.mpegurl";
+    }
 
-  } catch (error) {
-    res.status(500).send("Proxy error: " + error.message);
+    res.setHeader("Content-Type", contentType || "application/octet-stream");
+
+    // Stream trực tiếp, không buffer → video không bị tải xuống
+    response.body.pipe(res);
+
+  } catch (err) {
+    res.status(500).send("Proxy error: " + err.message);
   }
 });
 
-// Render yêu cầu phải dùng PORT từ env
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Proxy is running on port " + PORT));
