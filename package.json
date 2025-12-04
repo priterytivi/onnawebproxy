@@ -1,5 +1,5 @@
 {
-  "name": "simple-proxy",
+  "name": "render-proxy",
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
