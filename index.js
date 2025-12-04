@@ -19,7 +19,7 @@ app.get("/*", async (req, res) => {
     let targetPath = req.originalUrl.substring(1); // bỏ dấu "/"
 
     if (!targetPath) {
-      return res.status(400).send("Vui lòng cung cấp URL để proxy, ví dụ: /http://example.com/playlist.m3u8");
+      return res.status(400).send("Vui lòng cung cấp URL để proxy, ví dụ: https://onnanetwork.xyz/http://ditmebonspamcommentsaodon.com");
     }
 
     // Nếu không có scheme thì thêm DEFAULT_SCHEME
