@@ -11,32 +11,36 @@ app.get("/youtube/live.m3u8", (req, res) => {
 
   const ytUrl = `https://www.youtube.com/@${id}/live`;
 
-  exec(
-    `yt-dlp -f best --print manifest_url ${ytUrl}`,
-    async (err, stdout) => {
-      if (err || !stdout) {
-        return res.status(404).send("Livestream not found");
-      }
-
-      try {
-        const m3u8Url = stdout.trim();
-        const r = await fetch(m3u8Url);
-        res.setHeader(
-          "Content-Type",
-          "application/vnd.apple.mpegurl"
-        );
-        r.body.pipe(res);
-      } catch (e) {
-        res.status(500).send("Stream error");
-      }
+  exec(`yt-dlp -f best --print manifest_url ${ytUrl}`, async (err, stdout) => {
+    if (err || !stdout) {
+      return res.status(404).send("Livestream not found");
     }
-  );
-});
 
-app.get("/", (_, res) => {
-  res.send("YouTube Live m3u8 API running");
+    const m3u8Url = stdout.trim();
+    const baseUrl = m3u8Url.substring(0, m3u8Url.lastIndexOf("/") + 1);
+
+    try {
+      const r = await fetch(m3u8Url);
+      let text = await r.text();
+
+      // 🔥 rewrite URL tương đối → tuyệt đối
+      text = text.replace(
+        /^(?!#)(.+)$/gm,
+        (line) => {
+          if (line.startsWith("http")) return line;
+          return baseUrl + line;
+        }
+      );
+
+      res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
+      res.send(text);
+
+    } catch {
+      res.status(500).send("Proxy stream error");
+    }
+  });
 });
 
 app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
+  console.log("Running on " + PORT);
 });
