@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: youtube-m3u8
+    env: node
+    buildCommand: |
+      curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
+      chmod +x /usr/local/bin/yt-dlp
+      npm install
+    startCommand: npm start
